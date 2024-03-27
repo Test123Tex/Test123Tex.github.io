@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link href='https://fonts.googleapis.com/css?family=Londrina+Shadow' rel='stylesheet' type='text/css'>
+<style>
+body {
+  font-family: helvetica, sans-serif;
+  margin: 0 auto;
+  max-width: 600px;
+  background: #999090;
+}
+div {
+  height: 400px;
+  background-size: cover;
+  position: relative;
+  margin: 40px 0 0 0;
+  border-radius: 12px;
+  font-size: 20px;
+}
+h1 {
+  font-family: 'Londrina ', cursive;
+  text-align: center;
+  font-size: 75px;
+  color: #36454F;
+  margin: 60px 0 0 0;
+}
+h2 {
+  text-align: center;
+  color: #red;
+  margin: 0px 0 70px 0;
+}
+p {
+  color: Pink;
+  background: black;
+  background: linear-gradient(bottom, rgba(0,0,0,1), rgba(0,0,0,.4));
+  background: -webkit-linear-gradient(bottom, rgba(0,0,0,1), rgba(0,0,0,.4));
+  background: -moz-linear-gradient(bottom, rgba(0,0,0,1), rgba(0,0,0,.4));
+  padding: 10px;
+  line-height: 28px;
+  text-align: justify;
+  bottom: 0;
+  margin: 0;
+  height: 20px;
+  transition: height .5s;
+  -webkit-transition: height .5s;
+  -moz-transition: height .5s;
+}
+
+small {
+  opacity: 0 ;
+  font-family: 'Open Sans', cursive;
+}
+
+.show-description p {
+  height: 150px;
+}
+
+.show-description small {
+  opacity: 10;
+}
+
+.Pen{
+  background-image: url("https://www.collinsdictionary.com/images/full/pen_525053431_1000.jpg");
+}
+.NoteBooks{
+  background-image: url("https://www.artnews.com/wp-content/uploads/2020/06/AdobeStock_351595581.jpeg?w=1200");
+}
+.folders{
+  background-image: url("https://m.media-amazon.com/images/I/61eNT0UXGdL.jpg");
+}
+.price {
+  float: right;
+}
+@Store (max-width: 500px) {
+  h1 {
+    font-size: 50px;
+    margin-top: 20px;
+    line-height: 40px;
+  }
+  h2 {
+    font-size: 20px;
+    margin: 20px 0 30px 0;
+  }
+  div {
+    margin: 20px 12px 0 12px;
+  }
+  p {
+    font-size: 20px;
+    line-height: 24px;
+  }
+  small {
+    font-size: 16px;
+  }
+  input {
+  	font-size: 22px;
+  }
+ 
+}
+
+</style>
+
+</head>
+
+<body>
+<h1>0.99 Cent Store</h1>
+<div class="Pen">
+	<input class="quantities"type="number" min="0" style="width: 50px">
+  <p>PEN <span class="price">$1.99</span><br />
+  <small>An implement for writing or drawing with ink that has similar use as an pencil </small></p>
+</div>
+
+<div class="NoteBooks">
+	<input class="quantities"type="number" min="0" style="width: 50px">
+  <p>NoteBooks <span class="price">$2.99</span><br />
+  <small>note-taking, journaling or other writing, drawing, or scrapbooking.</small></p>
+</div>
+  
+<div class="folders">
+	<input class="quantities"type="number" min="0" style="width: 50px">
+  <p>Folders <span class="price">$6.99</span><br />
+  <small>a folding cover or holder, typically made of stiff paper or cardboard, for storing loose papers.</small></p>
+</div>
+
+<br><br>
+ <input id="Name" placeholder="Your name">
+ <input id="Email" placeholder="Your email">
+ <input id="submit" type="submit">
+ 
+ <br><br>
+ 
+ <script type="module">
+   // Import the functions you need from the SDKs you need
+   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+   import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+   
+   // TODO: Add SDKs for Firebase products that you want to use
+   // https://firebase.google.com/docs/web/setup#available-libraries
+
+   // Your web app's Firebase configuration
+   const firebaseConfig = {
+     apiKey: "AIzaSyCdGLYUSuE8dWreydWkbSt6e3nmfJQi9OM",
+     authDomain: "project-3-10237.firebaseapp.com",
+     projectId: "project-3-10237",
+     storageBucket: "project-3-10237.appspot.com",
+     messagingSenderId: "251777316163",
+     appId: "1:251777316163:web:22bc285c26d5b51657ebf6"
+   };
+
+   // Initialize Firebase
+   const app = initializeApp(firebaseConfig);
+   const db = getDatabase(app); 
+   const Name = document.querySelector("#Name") 
+   const Email = document.querySelector("#Email")
+   document.querySelector('#submit').addEventListener('click', Submit)
+   const quantities = document.querySelectorAll(".quantities")
+   const prices = document.querySelectorAll(".price")
+const itemsList = ["Pen", "NoteBooks", "Folders"]
+   
+   
+function Submit() {
+
+				  
+  const timestamp = buildTimestamp()
+	let total = 0
+    let cart = {}
+    for  (let i=0; i<quantities.length; i=i+1) {
+  		if (quantities[i].value != "0" && quantities[i].value != "") {	
+		 	let price = prices[i].innerHTML.replace('$', '')
+		  	total = total + quantities[i].value * price 
+  			cart[itemsList[i]] = parseInt(quantities[i].value) 
+	}
+  	quantities[i].value = ""
+  }
+	
+  
+  set(ref(db, timestamp), {
+		 Name: Name.value,
+	     email: Email.value,
+		 cart: cart,
+		 totalPrice: total,
+		 paid: "not yet",
+  });
+
+  Name.value = ""
+  Email.value = ""
+}
+function buildTimestamp() {
+  const now = new Date();
+  let timestamp = now.getFullYear().toString() + "/";
+  //const month = now.toLocaleString('default', { month: 'long' });
+
+  let month = now.getMonth()+1   //add 1 because Javascript uses 0 for January
+  month = month.toString()
+  month = addLeadingZero(month)
+  timestamp += month + "/"; 
+
+  let date = now.getDate().toString()
+  date = addLeadingZero(date)
+  timestamp += date + "/";
+
+  let hours = now.getHours().toString()
+  hours = addLeadingZero(hours)
+  timestamp += hours + ":";
+
+  let minutes = now.getMinutes().toString()
+  minutes = addLeadingZero(minutes)
+  timestamp += minutes + ":";
+
+  let seconds = now.getSeconds().toString()
+  seconds = addLeadingZero(seconds)
+  timestamp += seconds;
+ 
+  return timestamp
+}
+
+function addLeadingZero(units) {
+	if (units.length < 2) {
+		units = "0" + units
+	}
+	return units
+}
+   
+   
+ </script>
+   
+   
+<script>
+  $('div').on('click', function() {
+      $(this).toggleClass('show-description');
+  });
+
+</script>
+
+</body>
